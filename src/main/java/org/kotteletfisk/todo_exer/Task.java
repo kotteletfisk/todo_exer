@@ -4,18 +4,17 @@
  */
 
 package org.kotteletfisk.todo_exer;
+import java.time.LocalDate;
 
 /**
  *
  * @author kotteletfisk
  */
-public class Other_class {
+public class Task {
+    public String name;
+    public boolean isCompleted;
+    public LocalDate deadline;
+    public ListCategory category;
 
-    public void helloFromOther() {
-        System.out.println("Hello from other!");
-    }
-
-    public int add(int x, int y) {
-        return x + y;
-    }
+    public Task() {}
 }

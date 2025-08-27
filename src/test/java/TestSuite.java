@@ -8,20 +8,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
-import org.kotteletfisk.todo_exer.Other_class;
+import org.kotteletfisk.todo_exer.TaskManager;
 
 @DisplayNameGeneration(DisplayNameGenerator.Simple.class)
 class TestSuite {
-
-    @Test
-    @DisplayName("Custom test name")
-    public void test1() {
-        Other_class oc = new Other_class();
-        int actual = oc.add(2, 3);
-        int expected = 5;
-        assertEquals(actual, expected);
-        System.out.println("Test executed");
-    }
 
     @Test
     @DisplayName("Test Connection to SQLite Database")
@@ -30,10 +20,18 @@ class TestSuite {
 
         try {
             Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:test.db");
+            c = DriverManager.getConnection("jdbc:sqlite:src/test/java/test.db");
         } catch (Exception e) {
             fail("Failed to get SQLite object: " + e.getClass().getName() + ": " + e.getMessage());
         }
         System.out.println("Opened database successfully");
+    }
+
+    @Test
+    @DisplayName("TaskManager input test")
+    void testTaskManagerInput() {
+        TaskManager tm = new TaskManager();
+
+        tm.runTaskManager();
     }
 }

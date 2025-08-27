@@ -11,10 +11,8 @@ package org.kotteletfisk.todo_exer;
 public class Todo_exer {
 
     public static void main(String[] args) {
+        TaskManager tm = new TaskManager();
 
-        Other_class oc = new Other_class();
-
-        System.out.println("Hello World!");
-        oc.helloFromOther();
+        tm.runTaskManager();
     }
 }
