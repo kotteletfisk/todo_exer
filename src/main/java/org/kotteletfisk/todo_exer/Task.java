@@ -16,5 +16,12 @@ public class Task {
     public LocalDate deadline;
     public ListCategory category;
 
-    public Task() {}
+    public Task() {};
+
+    public Task(String name, LocalDate deadline, ListCategory category) {
+        this.name = name;
+        this.isCompleted = false;
+        this.deadline = deadline;
+        this.category = category;
+    }
 }
