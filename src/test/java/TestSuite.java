@@ -1,22 +1,92 @@
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
-
+import org.kotteletfisk.todo_exer.ListCategory;
 import org.kotteletfisk.todo_exer.Task;
 import org.kotteletfisk.todo_exer.TaskManager;
 
 @DisplayNameGeneration(DisplayNameGenerator.Simple.class)
 class TestSuite {
 
+    private final String TESTDB_URL = "jdbc:sqlite:src/test/java/test.db";
+
+//  INTEGRATION TESTING *****************************************************************************
     @Test
-    @DisplayName("Test Connection to SQLite Database")
+    @DisplayName("Test Connection to SQLite test Database")
     void testDatabaseConnection() {
+
+        var sql = "CREATE TABLE IF NOT EXISTS tasks ("
+        + "	name TEXT PRIMARY KEY,"
+        + "	isCompleted INTEGER"
+        + "	deadline TEXT"
+        + "	category TEXT"
+        + ");";
+
+        try (var conn = DriverManager.getConnection(TESTDB_URL);
+            var stmt = conn.createStatement()) {
+            // create a new table
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            fail("Failed to get SQLite object: " + e.getClass().getName() + ": " + e.getMessage());
+        }
+    }
+
+//  APPLICATION TESTING ******************************************************************************
+    @Test
+    @DisplayName("Convert String to Category enum test")
+    void testEnumConversion() {
+        // Numbers 1-3 should return enums LOW, MID, HIGH.
+        // All else returns DEFAULT
+
+        String input1 = "1";
+        String input2 = "2";
+        String input3 = "3";
+        String input4 = "0";
+        String input5 = "f";
+
+        assertEquals(ListCategory.LOW, ListCategory.parseFromStr(input1));
+        assertEquals(ListCategory.MID, ListCategory.parseFromStr(input2));
+        assertEquals(ListCategory.HIGH, ListCategory.parseFromStr(input3));
+        assertEquals(ListCategory.DEFAULT, ListCategory.parseFromStr(input4));
+        assertEquals(ListCategory.DEFAULT, ListCategory.parseFromStr(input5));
+    }
+
+    @Test
+    @DisplayName("Task parse test")
+    void testTaskInput() {
+        // Task should be succesfully created from parsed string inputs.
+        TaskManager tm = new TaskManager();
+        String name = "navn";
+        LocalDate deadline = LocalDate.parse("12-12-2025", tm.dateTimeFormatter);
+        ListCategory category = ListCategory.parseFromStr("1");
+
+        Task t = new Task(name, deadline, category);
+
+        assertEquals("navn", t.name);
+        assertEquals(LocalDate.parse("12-12-2025", tm.dateTimeFormatter), t.deadline);
+        assertEquals(ListCategory.LOW, t.category);
+    }
+
+    @Test
+    @DisplayName("Test task persistance to SQLite")
+    void testTaskPersistence() {
+        // A succesfully created task should be retrievable from database
+        TaskManager tm = new TaskManager();
+        String name = "testTaskPersistence";
+        LocalDate deadline = LocalDate.parse("12-12-2025", tm.dateTimeFormatter);
+        ListCategory category = ListCategory.parseFromStr("1");
+
+        Task t = new Task(name, deadline, category);
+
         Connection c = null;
 
         try {
@@ -25,19 +95,8 @@ class TestSuite {
         } catch (Exception e) {
             fail("Failed to get SQLite object: " + e.getClass().getName() + ": " + e.getMessage());
         }
-        System.out.println("Opened database successfully");
-    }
 
-    @Test
-    @DisplayName("Task input test")
-    void testTaskInput() {
-        TaskManager tm = new TaskManager();
-        String name = "navn";
-        String deadline = "12/12/2025";
-        String category = "1";
+        tm.addTask(t, c);
 
-        Task t = tm.createTaskFromInput(name, deadline, category);
-
-        assertEquals("navn", t.name);
     }
 }

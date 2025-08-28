@@ -5,9 +5,26 @@
 
 package org.kotteletfisk.todo_exer;
 
-enum ListCategory {
+public enum ListCategory {
     DEFAULT,
     LOW,
     MID,
-    HIGH
+    HIGH;
+
+    public static ListCategory parseFromStr(String x) throws IllegalArgumentException {
+        switch (x) {
+            case "1" -> {
+                return ListCategory.LOW;
+            }
+            case "2" -> {
+                return ListCategory.MID;
+            }
+            case "3" -> {
+                return ListCategory.HIGH;
+            }
+            default -> {
+                return ListCategory.DEFAULT;
+            }
+        }
+    } 
 }

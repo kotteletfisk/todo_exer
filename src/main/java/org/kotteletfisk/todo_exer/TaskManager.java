@@ -4,6 +4,9 @@
  */
 
 package org.kotteletfisk.todo_exer;
+import java.sql.Connection;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner; 
 
 /**
@@ -11,6 +14,8 @@ import java.util.Scanner;
  * @author kotteletfisk
  */
 public class TaskManager {
+
+    public DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     public void runTaskManager() {
         Scanner scanner = new Scanner(System.in);
@@ -28,25 +33,33 @@ Welcome to TaskMaster5000!
             
             switch (input) {
                 case "1" -> {
-                    // Task t = createTaskFromInput();
-                    addTask();
+                    String name = printAndInput("Enter name: ", scanner);
+                    LocalDate deadline = LocalDate.parse(printAndInput("Enter deadline date (dd-mm-yyyy): ", scanner), dateTimeFormatter);
+
+                    String inputStr = printAndInput(
+"""
+Input Task category:
+0. DEFAULT
+1. LOW
+2. MID
+3. HIGH
+""", scanner);
+                    ListCategory category = ListCategory.parseFromStr(inputStr);
+                    Task t = new Task(name, deadline, category);
+
+                    // addTask(t);
                 }
                 default -> throw new AssertionError();
             }
         }
     }
 
-    void addTask() {
+    public void addTask(Task t, Connection c) {
         
     }
 
-    public Task createTaskFromInput(String name, String deadline, String category) {
-        return new Task();
-    }
-
-    public String printAndInput(String print) {
-        Scanner s = new Scanner(System.in);
+    public String printAndInput(String print, Scanner scanner) {
         System.out.println(print);
-        return s.nextLine();
+        return scanner.nextLine();
     }
 }
