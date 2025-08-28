@@ -13,6 +13,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.kotteletfisk.todo_exer.ListCategory;
 import org.kotteletfisk.todo_exer.Task;
 import org.kotteletfisk.todo_exer.TaskManager;
@@ -45,23 +47,19 @@ class TestSuite {
     }
 
 //  APPLICATION TESTING ******************************************************************************
-    @Test
+    @ParameterizedTest
     @DisplayName("Convert String to Category enum test")
-    void testEnumConversion() {
+    @CsvSource({
+        "1, LOW",
+        "2, MID",
+        "3, HIGH",
+        "0, DEFAULT",
+        "f, DEFAULT"
+    })
+    void testEnumConversion(String input, ListCategory expected) {
         // Numbers 1-3 should return enums LOW, MID, HIGH.
         // All else returns DEFAULT
-
-        String input1 = "1";
-        String input2 = "2";
-        String input3 = "3";
-        String input4 = "0";
-        String input5 = "f";
-
-        assertEquals(ListCategory.LOW, ListCategory.parseFromStr(input1));
-        assertEquals(ListCategory.MID, ListCategory.parseFromStr(input2));
-        assertEquals(ListCategory.HIGH, ListCategory.parseFromStr(input3));
-        assertEquals(ListCategory.DEFAULT, ListCategory.parseFromStr(input4));
-        assertEquals(ListCategory.DEFAULT, ListCategory.parseFromStr(input5));
+        assertEquals(expected, ListCategory.parseFromStr(input));
     }
 
     @Test
