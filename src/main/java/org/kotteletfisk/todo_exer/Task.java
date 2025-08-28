@@ -5,9 +5,6 @@
 package org.kotteletfisk.todo_exer;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Scanner;
 
 /**
  *
@@ -30,20 +27,10 @@ public class Task {
         this.category = category;
     }    
     
-    public Task(String name, LocalDate deadline, ListCategory category, int isCompletedInt) {
+    public Task(String name, LocalDate deadline, ListCategory category, boolean isCompleted) {
         this.name = name;
-        this.isCompleted = isCompletedInt == 1;
+        this.isCompleted = isCompleted;
         this.deadline = deadline;
         this.category = category;
-    }
-
-    public static Task createTaskFromStrings(String name, String deadlineStr, String categoryStr, Scanner s, DateTimeFormatter dtf)
-            throws DateTimeParseException,
-            IllegalArgumentException {
-
-        LocalDate deadline = LocalDate.parse(deadlineStr, dtf);
-        ListCategory lc = ListCategory.parseFromStr(categoryStr);
-
-        return new Task(name, deadline, lc);
     }
 }

@@ -4,7 +4,6 @@
  */
 
 package org.kotteletfisk.todo_exer;
-import java.sql.Connection;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner; 
 
@@ -43,16 +42,12 @@ Input Task category:
 2. MID
 3. HIGH
 """, scanner);
-                    Task t = Task.createTaskFromStrings(name, deadlineInput, categoryInput, scanner, dateTimeFormatter);
+                    Task t = TaskFactory.createTaskFromStrings(name, deadlineInput, categoryInput, dateTimeFormatter);
                     // addTask(t);
                 }
                 default -> throw new AssertionError();
             }
         }
-    }
-
-    public void addTask(Task t, Connection c) {
-        
     }
 
     public String printAndInput(String print, Scanner scanner) {
