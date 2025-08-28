@@ -3,8 +3,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -18,6 +21,8 @@ import org.kotteletfisk.todo_exer.TaskManager;
 class TestSuite {
 
     private final String TESTDB_URL = "jdbc:sqlite:src/test/java/test.db";
+    private final Scanner scanner = new Scanner(System.in);
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
 //  INTEGRATION TESTING *****************************************************************************
     @Test
@@ -25,14 +30,13 @@ class TestSuite {
     void testDatabaseConnection() {
 
         var sql = "CREATE TABLE IF NOT EXISTS tasks ("
-        + "	name TEXT PRIMARY KEY,"
-        + "	isCompleted INTEGER"
-        + "	deadline TEXT"
-        + "	category TEXT"
-        + ");";
+                + "	name TEXT PRIMARY KEY,"
+                + "	isCompleted INTEGER"
+                + "	deadline TEXT"
+                + "	category TEXT"
+                + ");";
 
-        try (var conn = DriverManager.getConnection(TESTDB_URL);
-            var stmt = conn.createStatement()) {
+        try (var conn = DriverManager.getConnection(TESTDB_URL); var stmt = conn.createStatement()) {
             // create a new table
             stmt.execute(sql);
         } catch (SQLException e) {
@@ -63,14 +67,17 @@ class TestSuite {
     @Test
     @DisplayName("Task parse test")
     void testTaskInput() {
-        // Task should be succesfully created from parsed string inputs.
+        // Task should be succesfully created from correct parsed string inputs.
         TaskManager tm = new TaskManager();
+
+        // Simulated user input
         String name = "navn";
-        LocalDate deadline = LocalDate.parse("12-12-2025", tm.dateTimeFormatter);
-        ListCategory category = ListCategory.parseFromStr("1");
+        String deadlineStr = "12-12-2025";
+        String categoryStr = "1";
 
-        Task t = new Task(name, deadline, category);
+        Task t = Task.createTaskFromStrings(name, deadlineStr, categoryStr, scanner, tm.dateTimeFormatter);
 
+        assertNotNull(t);
         assertEquals("navn", t.name);
         assertEquals(LocalDate.parse("12-12-2025", tm.dateTimeFormatter), t.deadline);
         assertEquals(ListCategory.LOW, t.category);
@@ -86,17 +93,31 @@ class TestSuite {
         ListCategory category = ListCategory.parseFromStr("1");
 
         Task t = new Task(name, deadline, category);
-
-        Connection c = null;
+        Connection conn = null;
 
         try {
-            Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:src/test/java/test.db");
-        } catch (Exception e) {
-            fail("Failed to get SQLite object: " + e.getClass().getName() + ": " + e.getMessage());
+            conn = DriverManager.getConnection(TESTDB_URL);
+            tm.addTask(t, conn);
+        } catch (SQLException e) {
+            fail("Failed insert into SQLite table: " + e.getClass().getName() + ": " + e.getMessage());
         }
 
-        tm.addTask(t, c);
+        var sql = "SELECT * FROM tasks WHERE name = " + name;
 
+        try (var conn2 = DriverManager.getConnection(TESTDB_URL);
+
+            var stmt = conn2.createStatement();
+            var rs = stmt.executeQuery(sql)) {
+                if (rs.next()) {
+                    String fetchedName = rs.getString("name");
+                    String fetchedDeadline = rs.getString("deadline");
+                    String fetchedCategory = rs.getString("category");
+                    int fetchedCompleted = rs.getInt("isCompleted");
+                    
+                    // Task fetched_t = new Task(fetchedName, fetchedDeadline, fetchedCategory, fetchedCompleted);
+                }
+            } catch (SQLException e) {
+            fail("Failed to get SQLite object: " + e.getClass().getName() + ": " + e.getMessage());
+        }
+        }
     }
-}

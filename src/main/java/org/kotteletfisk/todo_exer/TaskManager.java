@@ -5,7 +5,6 @@
 
 package org.kotteletfisk.todo_exer;
 import java.sql.Connection;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner; 
 
@@ -34,9 +33,9 @@ Welcome to TaskMaster5000!
             switch (input) {
                 case "1" -> {
                     String name = printAndInput("Enter name: ", scanner);
-                    LocalDate deadline = LocalDate.parse(printAndInput("Enter deadline date (dd-mm-yyyy): ", scanner), dateTimeFormatter);
+                    String deadlineInput = printAndInput("Enter deadline date (dd-MM-yyyy): ", scanner);
 
-                    String inputStr = printAndInput(
+                    String categoryInput = printAndInput(
 """
 Input Task category:
 0. DEFAULT
@@ -44,9 +43,7 @@ Input Task category:
 2. MID
 3. HIGH
 """, scanner);
-                    ListCategory category = ListCategory.parseFromStr(inputStr);
-                    Task t = new Task(name, deadline, category);
-
+                    Task t = Task.createTaskFromStrings(name, deadlineInput, categoryInput, scanner, dateTimeFormatter);
                     // addTask(t);
                 }
                 default -> throw new AssertionError();
