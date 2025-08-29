@@ -145,7 +145,7 @@ class TestSuite {
             stmt.execute("DELETE FROM tasks");
             // insert data
             stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task1', 0, '2025-08-28', 'LOW')");
-            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task2, '1', '2026-08-28', 'HIGH')");
+            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task2', '1', '2026-08-28', 'HIGH')");
 
             TaskManager tm = new TaskManager();
 
