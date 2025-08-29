@@ -2,14 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-
 package org.kotteletfisk.todo_exer;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -26,31 +24,43 @@ public class TaskManager {
     public void runTaskManager() {
         Scanner scanner = new Scanner(System.in);
         String input;
+        List<Task> fetchedTasks;
+
+        try (Connection c = DriverManager.getConnection(DB_URL)) {
+            pm.initDB(c, DB_URL);
+        } catch (SQLException e) {
+            System.err.println("Failed to init db: " + e.getMessage());
+            return;
+        }
 
         while (true) {
 
             try (Connection c = DriverManager.getConnection(DB_URL)) {
-                pm.initDB(c, DB_URL);
+                fetchedTasks = pm.fetchAllTasks(c);
             } catch (SQLException e) {
-                System.err.println("Failed to init db: " + e.getMessage());
-                break;
+                System.err.println("Failed to fetch tasks from db: " + e.getMessage());
+                return;
             }
+
+            // Print all tasks currently in DB
+            printTasks(fetchedTasks);
+
             System.out.println(
-"""
+                    """
 Welcome to TaskMaster5000!
 
 1. Add Task
             
 """);
             input = scanner.nextLine();
-            
+
             switch (input) {
                 case "1" -> {
                     String name = printAndInput("Enter name: ", scanner);
                     String deadlineInput = printAndInput("Enter deadline date (dd-MM-yyyy): ", scanner);
 
                     String categoryInput = printAndInput(
-"""
+                            """
 Input Task category:
 0. DEFAULT
 1. LOW
@@ -65,53 +75,39 @@ Input Task category:
                     }
                 }
 
-                default -> throw new AssertionError();
+                default ->
+                    throw new AssertionError();
             }
         }
     }
-
 
     public String printAndInput(String print, Scanner scanner) {
         System.out.println(print);
         return scanner.nextLine();
     }
 
-    public List<Task> fetchAllTasks(Connection c) {
-        List<Task> tasks = new ArrayList<>();
-        String sql = "SELECT name, isCompleted, deadline, category FROM tasks";
-
-        try (var stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery(sql)) {
-            
-            System.out.println("Query executed successfully!");
-
-            } catch (Exception e) {
-                System.out.println("Error fetching tasks: " + e.getMessage());
-            }
-
-        return tasks;
-    }
-
     public void initDatabase(Connection c) {
         try (var stmt = c.createStatement()) {
-            stmt.execute("CREATE TABLE IF NOT EXISTS tasks (" +
-                        "name TEXT PRIMARY KEY, " +
-                        "isCompleted INTEGER, " +
-                        "deadline TEXT, " +
-                        "category TEXT)");
+            stmt.execute("CREATE TABLE IF NOT EXISTS tasks ("
+                    + "name TEXT PRIMARY KEY, "
+                    + "isCompleted INTEGER, "
+                    + "deadline TEXT, "
+                    + "category TEXT)");
         } catch (Exception e) {
             System.out.println("Error creating table: " + e.getMessage());
         }
     }
+
     public void insertTestTask(Connection c) {
         try (var stmt = c.createStatement()) {
             stmt.execute("DELETE FROM tasks");
-            stmt.execute("INSERT INTO tasks (name, isCompleted, deadline, category) " +
-                        "VALUES ('learn-fetch', 0, '2025-12-31', 'LOW')");
+            stmt.execute("INSERT INTO tasks (name, isCompleted, deadline, category) "
+                    + "VALUES ('learn-fetch', 0, '2025-12-31', 'LOW')");
         } catch (Exception e) {
             System.out.println("Error inserting test task: " + e.getMessage());
         }
     }
+
     public void printTasks(List<Task> tasks) {
         System.out.println("=== Tasks fetched from DB ===");
         for (Task t : tasks) {

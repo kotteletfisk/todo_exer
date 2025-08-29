@@ -6,8 +6,11 @@ package org.kotteletfisk.todo_exer;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -30,16 +33,30 @@ public class PersistenceManager {
     }
 
     public void initDB(Connection c, String db_url) throws SQLException {
-                String createSql = "CREATE TABLE IF NOT EXISTS tasks ("
-                            + "	name TEXT PRIMARY KEY,"
-                            + "	isCompleted INTEGER,"
-                            + "	deadline TEXT,"
-                            + "	category TEXT"
-                            + ");";
-        try (var conn = DriverManager.getConnection(db_url); 
-            var stmt = conn.createStatement()) {
+        String createSql = "CREATE TABLE IF NOT EXISTS tasks ("
+                + "	name TEXT PRIMARY KEY,"
+                + "	isCompleted INTEGER,"
+                + "	deadline TEXT,"
+                + "	category TEXT"
+                + ");";
+        try (var conn = DriverManager.getConnection(db_url); var stmt = conn.createStatement()) {
             // create a new table
             stmt.execute(createSql);
         }
+    }
+
+    public List<Task> fetchAllTasks(Connection c) {
+        List<Task> tasks = new ArrayList<>();
+        String sql = "SELECT name, isCompleted, deadline, category FROM tasks";
+
+        try (var stmt = c.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+
+            System.out.println("Query executed successfully!");
+
+        } catch (Exception e) {
+            System.out.println("Error fetching tasks: " + e.getMessage());
+        }
+
+        return tasks;
     }
 }
