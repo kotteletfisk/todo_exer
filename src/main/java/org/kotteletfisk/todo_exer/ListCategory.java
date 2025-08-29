@@ -13,13 +13,13 @@ public enum ListCategory {
 
     public static ListCategory parseFromStr(String x) throws IllegalArgumentException {
         switch (x) {
-            case "1" -> {
+            case "1", "LOW" -> {
                 return ListCategory.LOW;
             }
-            case "2" -> {
+            case "2", "MID" -> {
                 return ListCategory.MID;
             }
-            case "3" -> {
+            case "3", "HIGH" -> {
                 return ListCategory.HIGH;
             }
             default -> {

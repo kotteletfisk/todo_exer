@@ -52,9 +52,10 @@ public class PersistenceManager {
 
             while (rs.next()) {
                 String name = rs.getString("name");
-                boolean isCompleted = rs.getInt("isCompleted") == 1;
                 String deadlineStr = rs.getString("deadline");
                 String categoryStr = rs.getString("category");
+
+                System.err.println(categoryStr);
 
                 Task t = TaskFactory.createTaskFromStrings(name, deadlineStr, categoryStr, rs.getInt("isCompleted"), DateTimeFormatter.ofPattern("dd-MM-yyyy"));
                 tasks.add(t);
