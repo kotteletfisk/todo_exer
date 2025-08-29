@@ -5,9 +5,12 @@
 
 package org.kotteletfisk.todo_exer;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Scanner; 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  *
@@ -55,11 +58,59 @@ Input Task category:
     }
 
     public void addTask(Task t, Connection c) {
-        
+        // TODO: Lasse will Implement this
+        System.out.println("Pretend to insert tasks: " + t.name);
     }
 
     public String printAndInput(String print, Scanner scanner) {
         System.out.println(print);
         return scanner.nextLine();
+    }
+
+    public List<Task> fetchAllTasks(Connection c) {
+        List<Task> tasks = new ArrayList<>();
+        String sql = "SELECT name, isCompleted, deadline, category FROM tasks";
+
+        try (var stmt = c.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+            
+            System.out.println("Query executed successfully!");
+
+            } catch (Exception e) {
+                System.out.println("Error fetching tasks: " + e.getMessage());
+            }
+
+        return tasks;
+    }
+
+    public void initDatabase(Connection c) {
+        try (var stmt = c.createStatement()) {
+            stmt.execute("CREATE TABLE IF NOT EXISTS tasks (" +
+                        "name TEXT PRIMARY KEY, " +
+                        "isCompleted INTEGER, " +
+                        "deadline TEXT, " +
+                        "category TEXT)");
+        } catch (Exception e) {
+            System.out.println("Error creating table: " + e.getMessage());
+        }
+    }
+    public void insertTestTask(Connection c) {
+        try (var stmt = c.createStatement()) {
+            stmt.execute("DELETE FROM tasks");
+            stmt.execute("INSERT INTO tasks (name, isCompleted, deadline, category) " +
+                        "VALUES ('learn-fetch', 0, '2025-12-31', 'LOW')");
+        } catch (Exception e) {
+            System.out.println("Error inserting test task: " + e.getMessage());
+        }
+    }
+    public void printTasks(List<Task> tasks) {
+        System.out.println("=== Tasks fetched from DB ===");
+        for (Task t : tasks) {
+            System.out.println("Name: " + t.name);
+            System.out.println("Deadline: " + t.deadline);
+            System.out.println("Category: " + t.category);
+            System.out.println("Completed: " + t.isCompleted);
+            System.out.println("--------------------------");
+        }
     }
 }
