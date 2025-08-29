@@ -10,6 +10,7 @@ import java.util.Scanner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -101,18 +102,22 @@ class TestSuite {
     @DisplayName("Test Fetch All task from SQLlite")
     void testFetchAllTasks() throws Exception {
         // Arrange
-        try (Connection c = DriverManager.getConnection(TESTDB_URL); var stmt = c.createStatement()) {
+        try (Connection c = DriverManager.getConnection(TESTDB_URL);
+            var stmt = c.createStatement()) {
 
-            // clean table so test is predictable
+            // clean table so test is predictable (for no leftover data from previous test)
             stmt.execute("DELETE FROM tasks");
             // insert data
-            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task1', 0, '2025-08-28', 'LOW')");
-            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task2', '1', '2026-08-28', 'HIGH')");
-
-            TaskManager tm = new TaskManager();
+            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task1', 0, '28-08-2025', 'LOW')");
+            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task2', 1, '28-08-2026', 'HIGH')");
 
             // Act
-            //var tasks = tm.fetchAllTask(c)
+            var tasks = pm.fetchAllTasks(c);
+
+            // Assert
+            assertEquals(2, tasks.size(), "Should fetch 2 tasks");
+            assertTrue(tasks.stream().anyMatch(t -> t.name.equals("task1") && !t.isCompleted));
+            assertTrue(tasks.stream().anyMatch(t -> t.name.equals("task2") && t.isCompleted));
         }
     }
 
