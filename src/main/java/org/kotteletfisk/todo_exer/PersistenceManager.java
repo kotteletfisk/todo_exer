@@ -17,6 +17,12 @@ import java.util.List;
  */
 public class PersistenceManager {
 
+    DateTimeFormatter dtf;
+
+    public PersistenceManager(DateTimeFormatter dtf) {
+        this.dtf = dtf;
+    }
+
     public void createTask(Task t, Connection c, DateTimeFormatter dtf) throws SQLException {
 
         String sql = "INSERT INTO tasks VALUES(?, ?, ?, ?)";
@@ -44,6 +50,25 @@ public class PersistenceManager {
         }
     }
 
+    public Task fetchTask(String name ,Connection c) throws SQLException {
+        String sql = "SELECT * FROM tasks WHERE name = ?";
+
+        try (var pstmt = c.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String deadlineStr = rs.getString("deadline");
+                    String categoryStr = rs.getString("category");
+                    int isCompletedInt = rs.getInt("isCompleted");
+
+                    return TaskFactory.createTaskFromStrings(name, deadlineStr, categoryStr, isCompletedInt, dtf);
+                }
+            }
+        }
+        return null;
+    }
+
     public List<Task> fetchAllTasks(Connection c) {
         List<Task> tasks = new ArrayList<>();
         String sql = "SELECT name, isCompleted, deadline, category FROM tasks";
@@ -54,8 +79,6 @@ public class PersistenceManager {
                 String name = rs.getString("name");
                 String deadlineStr = rs.getString("deadline");
                 String categoryStr = rs.getString("category");
-
-                System.err.println(categoryStr);
 
                 Task t = TaskFactory.createTaskFromStrings(name, deadlineStr, categoryStr, rs.getInt("isCompleted"), DateTimeFormatter.ofPattern("dd-MM-yyyy"));
                 tasks.add(t);

@@ -18,7 +18,7 @@ import java.util.Scanner;
 public class TaskManager {
 
     public DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    public PersistenceManager pm = new PersistenceManager();
+    public PersistenceManager pm = new PersistenceManager(dateTimeFormatter);
     private final String DB_URL = "jdbc:sqlite:tasks.db";
 
     public void runTaskManager() {

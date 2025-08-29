@@ -30,7 +30,7 @@ class TestSuite {
     private final String TESTDB_URL = "jdbc:sqlite:src/test/java/test.db";
     private final Scanner scanner = new Scanner(System.in);
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    private final PersistenceManager pm = new PersistenceManager();
+    private final PersistenceManager pm = new PersistenceManager(dtf);
 
 //  INTEGRATION TESTING *****************************************************************************
     @Test
@@ -96,6 +96,57 @@ class TestSuite {
         }
     }
 
+    //Test Fetch All Tasks
+    @Test
+    @DisplayName("Test Fetch All task from SQLlite")
+    void testFetchAllTasks() throws Exception {
+        // Arrange
+        try (Connection c = DriverManager.getConnection(TESTDB_URL); var stmt = c.createStatement()) {
+
+            // clean table so test is predictable
+            stmt.execute("DELETE FROM tasks");
+            // insert data
+            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task1', 0, '2025-08-28', 'LOW')");
+            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task2', '1', '2026-08-28', 'HIGH')");
+
+            TaskManager tm = new TaskManager();
+
+            // Act
+            //var tasks = tm.fetchAllTask(c)
+        }
+    }
+
+    @Test
+    @DisplayName("Fetch a single task")
+    void testFetchTask() {
+
+        String testName = "test";
+        try (Connection c = DriverManager.getConnection(TESTDB_URL); var stmt = c.createStatement()) {
+
+            // clean table so test is predictable
+            stmt.execute("DELETE FROM tasks");
+            // insert data
+            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('" + testName + "', 0, '28-08-2025', 'LOW')");
+
+        } catch (SQLException e) {
+            fail("Could not insert test task into database");
+        }
+        try (Connection c = DriverManager.getConnection(TESTDB_URL)) {
+            Task t = pm.fetchTask(testName, c);
+            assertNotNull(t);
+            assertEquals(ListCategory.LOW, t.category);
+        } catch (SQLException e) {
+            fail("Failed to fetch test task: " + e.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("Delete A task")
+    void testDeleteTask() {
+
+        
+    }
+
 //  APPLICATION TESTING ******************************************************************************
     @ParameterizedTest
     @DisplayName("Convert String to Category enum test")
@@ -104,8 +155,10 @@ class TestSuite {
         "2, MID",
         "3, HIGH",
         "0, DEFAULT",
-        "f, DEFAULT"
-    })
+        "f, DEFAULT",
+        "LOW, LOW",
+        "MID, MID",
+        "HIGH, HIGH",})
     void testEnumConversion(String input, ListCategory expected) {
         // Numbers 1-3 should return enums LOW, MID, HIGH.
         // All else returns DEFAULT
@@ -161,31 +214,4 @@ class TestSuite {
             TaskFactory.createTaskFromStrings(name, deadlineStr, categoryStr, isCompletedInt, tm.dateTimeFormatter);
         });
     }
-
-    //Test Fetch All Tasks
-    @Test
-    @DisplayName("Test Fetch All task from SQLlite")
-    void testFetchAllTasks() throws Exception {
-        // Arrange
-        try (Connection c = DriverManager.getConnection(TESTDB_URL); var stmt = c.createStatement()) {
-
-            // clean table so test is predictable
-            stmt.execute("DELETE FROM tasks");
-            // insert data
-            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task1', 0, '2025-08-28', 'LOW')");
-            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task2', '1', '2026-08-28', 'HIGH')");
-
-            TaskManager tm = new TaskManager();
-
-            // Act
-            //var tasks = tm.fetchAllTask(c)
-        }
-    }
-
-    @Test
-    @DisplayName("Delete task from database by its name")
-    void deleteTask() {
-
-    }
-
 }
