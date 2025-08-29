@@ -82,13 +82,20 @@ Input Task category:
 
                     try (Connection c = DriverManager.getConnection(DB_URL)) {
                         pm.updateTask(c, name, isCompletedStr.equalsIgnoreCase("y"));
-                    } catch (SQLException e){
+                    } catch (SQLException e) {
                         System.err.println("Failed to update task: " + e.getMessage());
                     }
                 }
+                case "3" -> {
+                    String name = printAndInput("Enter name: ", scanner);
+                    try (Connection c = DriverManager.getConnection(DB_URL)) {
+                        pm.deleteTask(c, name);
+                    } catch (SQLException e) {
+                        System.err.println("Failed to delete task: " + e.getMessage());
+                    }
+                }
 
-                default ->
-                    throw new AssertionError();
+                default -> {} // Loop again
             }
         }
     }
