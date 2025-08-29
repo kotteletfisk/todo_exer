@@ -50,6 +50,8 @@ public class TaskManager {
 Welcome to TaskMaster5000!
 
 1. Add Task
+
+3. Delete Task
             
 """);
             input = scanner.nextLine();

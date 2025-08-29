@@ -5,7 +5,6 @@
 package org.kotteletfisk.todo_exer;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
@@ -39,7 +38,7 @@ public class PersistenceManager {
                 + "	deadline TEXT,"
                 + "	category TEXT"
                 + ");";
-        try (var conn = DriverManager.getConnection(db_url); var stmt = conn.createStatement()) {
+        try (var stmt = c.createStatement()) {
             // create a new table
             stmt.execute(createSql);
         }
@@ -58,5 +57,15 @@ public class PersistenceManager {
         }
 
         return tasks;
+    }
+
+    public void deleteTask(Connection c, String name) throws SQLException {
+
+        String sql = "DELETE FROM tasks WHERE name = ?";
+
+        try (var pstmt = c.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            pstmt.executeUpdate();
+        }
     }
 }
