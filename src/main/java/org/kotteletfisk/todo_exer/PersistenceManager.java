@@ -91,6 +91,18 @@ public class PersistenceManager {
         return tasks;
     }
 
+    public void updateTask(Connection c, String name, boolean isCompleted) throws SQLException {
+
+        String sql = "UPDATE tasks SET isCompleted = ? WHERE name = ?";
+
+        try (var pstmt = c.prepareStatement(sql)) {
+            pstmt.setBoolean(1, isCompleted);
+            pstmt.setString(2, name);
+
+            pstmt.executeUpdate();
+        }
+    }
+
     public void deleteTask(Connection c, String name) throws SQLException {
 
         String sql = "DELETE FROM tasks WHERE name = ?";

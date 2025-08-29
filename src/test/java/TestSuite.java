@@ -10,6 +10,7 @@ import java.util.Scanner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -141,10 +142,40 @@ class TestSuite {
     }
 
     @Test
+    @DisplayName("Update a test by name (id)")
+    void updateTaskTest() {
+        String testName = "update_test";
+        try (Connection c = DriverManager.getConnection(TESTDB_URL); var stmt = c.createStatement()) {
+
+            // clean table so test is predictable
+            stmt.execute("DELETE FROM tasks");
+            // insert data
+            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('" + testName + "', 0, '28-08-2025', 'LOW')");
+
+        } catch (SQLException e) {
+            fail("Could not insert test task into database");
+        }
+
+        try (Connection c = DriverManager.getConnection(TESTDB_URL)) {
+            pm.updateTask(c, testName, true);
+        } catch (SQLException e) {
+            fail("Failed to update Task: " + e.getMessage());
+        }
+
+        try (Connection c = DriverManager.getConnection(TESTDB_URL)) {
+            Task t = pm.fetchTask(testName, c);
+
+            assertTrue(t.isCompleted);
+        } catch (SQLException e) {
+            fail("Failed to update Task: " + e.getMessage());
+        }
+
+    }
+
+    @Test
     @DisplayName("Delete A task")
     void testDeleteTask() {
 
-        
     }
 
 //  APPLICATION TESTING ******************************************************************************

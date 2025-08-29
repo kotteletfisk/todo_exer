@@ -50,7 +50,7 @@ public class TaskManager {
 Welcome to TaskMaster5000!
 
 1. Add Task
-
+2. Update Task
 3. Delete Task
             
 """);
@@ -74,6 +74,16 @@ Input Task category:
                         pm.createTask(t, c, dateTimeFormatter);
                     } catch (SQLException ex) {
                         System.err.println("Error creating task: " + ex.getMessage());
+                    }
+                }
+                case "2" -> {
+                    String name = printAndInput("Enter name: ", scanner);
+                    String isCompletedStr = printAndInput("Enter is completed: (y/n)", scanner);
+
+                    try (Connection c = DriverManager.getConnection(DB_URL)) {
+                        pm.updateTask(c, name, isCompletedStr.equalsIgnoreCase("y"));
+                    } catch (SQLException e){
+                        System.err.println("Failed to update task: " + e.getMessage());
                     }
                 }
 
