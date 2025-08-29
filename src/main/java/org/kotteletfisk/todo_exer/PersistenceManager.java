@@ -5,6 +5,7 @@
 package org.kotteletfisk.todo_exer;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 
@@ -25,6 +26,20 @@ public class PersistenceManager {
             pstmt.setString(3, t.deadline.format(dtf));
             pstmt.setString(4, t.category.toString());
             pstmt.executeUpdate();
+        }
+    }
+
+    public void initDB(Connection c, String db_url) throws SQLException {
+                String createSql = "CREATE TABLE IF NOT EXISTS tasks ("
+                            + "	name TEXT PRIMARY KEY,"
+                            + "	isCompleted INTEGER,"
+                            + "	deadline TEXT,"
+                            + "	category TEXT"
+                            + ");";
+        try (var conn = DriverManager.getConnection(db_url); 
+            var stmt = conn.createStatement()) {
+            // create a new table
+            stmt.execute(createSql);
         }
     }
 }
