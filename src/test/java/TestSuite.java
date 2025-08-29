@@ -132,4 +132,29 @@ class TestSuite {
         assertEquals(LocalDate.parse("12-12-2025", tm.dateTimeFormatter), t.deadline);
         assertEquals(ListCategory.LOW, t.category);
     }
+
+    //Test Fetch All Tasks
+    @Test
+    @DisplayName("Test Fetch All task from SQLlite")
+    void testFetchAllTasks() throws Exception {
+        // Arrange
+        try (Connection c = DriverManager.getConnection(TESTDB_URL);
+            var stmt = c.createStatement()) {
+
+            // clean table so test is predictable
+            stmt.execute("DELETE FROM tasks");
+            // insert data
+            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task1', 0, '2025-08-28', 'LOW')");
+            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task2, '1', '2026-08-28', 'HIGH')");
+
+            TaskManager tm = new TaskManager();
+
+            // Act
+            //var tasks = tm.fetchAllTask(c)
+
+        }
+    }
+    
+
+
 }
