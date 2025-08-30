@@ -1,13 +1,15 @@
 
+
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,11 +27,11 @@ import org.kotteletfisk.todo_exer.Task;
 import org.kotteletfisk.todo_exer.TaskFactory;
 import org.kotteletfisk.todo_exer.TaskManager;
 
+
 @DisplayNameGeneration(DisplayNameGenerator.Simple.class)
-class TestSuite {
+class TodoExerTest {
 
     private final String TESTDB_URL = "jdbc:sqlite:src/test/java/test.db";
-    private final Scanner scanner = new Scanner(System.in);
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private final PersistenceManager pm = new PersistenceManager(dtf);
 
@@ -179,6 +181,7 @@ class TestSuite {
     }
 
 //  APPLICATION TESTING ******************************************************************************
+
     @ParameterizedTest
     @DisplayName("Convert String to Category enum test")
     @CsvSource({
@@ -212,6 +215,26 @@ class TestSuite {
         assertNotNull(t);
         assertEquals("navn", t.name);
         assertEquals(ListCategory.LOW, t.category);
+    }   
+    
+    @Test
+    @DisplayName("Task parse happy path test with int parameter")
+    void testTaskInputWithInt() {
+        // Task should be succesfully created from correct parsed string inputs.
+        TaskManager tm = new TaskManager();
+
+        // Simulated user input
+        String name = "navn";
+        String deadlineStr = "12-12-2025";
+        String categoryStr = "1";
+        int isCompleted = 0;
+
+        Task t = TaskFactory.createTaskFromStrings(name, deadlineStr, categoryStr, isCompleted, tm.dateTimeFormatter);
+
+        assertNotNull(t);
+        assertEquals("navn", t.name);
+        assertEquals(ListCategory.LOW, t.category);
+        assertFalse(t.isCompleted);
     }
 
     @Test

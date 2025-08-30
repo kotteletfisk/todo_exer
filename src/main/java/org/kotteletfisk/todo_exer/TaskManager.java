@@ -62,7 +62,7 @@ Welcome to TaskMaster5000!
                     String deadlineInput = printAndInput("Enter deadline date (dd-MM-yyyy): ", scanner);
 
                     String categoryInput = printAndInput(
-                            """
+"""
 Input Task category:
 0. DEFAULT
 1. LOW
@@ -104,19 +104,7 @@ Input Task category:
         System.out.println(print);
         return scanner.nextLine();
     }
-
-    public void initDatabase(Connection c) {
-        try (var stmt = c.createStatement()) {
-            stmt.execute("CREATE TABLE IF NOT EXISTS tasks ("
-                    + "name TEXT PRIMARY KEY, "
-                    + "isCompleted INTEGER, "
-                    + "deadline TEXT, "
-                    + "category TEXT)");
-        } catch (Exception e) {
-            System.out.println("Error creating table: " + e.getMessage());
-        }
-    }
-
+    
     public void insertTestTask(Connection c) {
         try (var stmt = c.createStatement()) {
             stmt.execute("DELETE FROM tasks");
