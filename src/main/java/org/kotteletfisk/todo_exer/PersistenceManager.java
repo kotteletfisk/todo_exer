@@ -103,8 +103,9 @@ public class PersistenceManager {
         }
     }
 
-    public void deleteTask(Connection c, String name) throws SQLException {
-
+    // Delete a task
+    public void deleteTask(String name, Connection c) throws SQLException {
+        
         String sql = "DELETE FROM tasks WHERE name = ?";
 
         try (var pstmt = c.prepareStatement(sql)) {
