@@ -12,6 +12,9 @@ public enum ListCategory {
     HIGH;
 
     public static ListCategory parseFromStr(String x) throws IllegalArgumentException {
+
+        if (x == null || x.isEmpty()) return ListCategory.DEFAULT;
+
         switch (x) {
             case "1", "LOW" -> {
                 return ListCategory.LOW;

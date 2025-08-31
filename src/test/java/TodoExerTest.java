@@ -1,11 +1,8 @@
 
-
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,14 +28,16 @@ import org.kotteletfisk.todo_exer.TaskManager;
 @DisplayNameGeneration(DisplayNameGenerator.Simple.class)
 class TodoExerTest {
 
+    // Url for connecting to test double database
+    // We want to have a clean, predictable test database, and not test on prod data!
     private final String TESTDB_URL = "jdbc:sqlite:src/test/java/test.db";
-    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    private final PersistenceManager pm = new PersistenceManager(dtf);
+    private final TaskManager tm = new TaskManager();
+    private final PersistenceManager pm = new PersistenceManager(tm.dateTimeFormatter);
 
 //  INTEGRATION TESTING *****************************************************************************
     @Test
     @BeforeEach
-    @DisplayName("Test Connection to SQLite test Database")
+    @DisplayName("Create clean SQLite db. Test Connection")
     void testDatabaseConnection() {
 
         String dropSql = "DROP TABLE IF EXISTS tasks;";
@@ -50,7 +49,6 @@ class TodoExerTest {
                 + ");";
 
         try (var conn = DriverManager.getConnection(TESTDB_URL); var stmt = conn.createStatement()) {
-            // create a new table
             stmt.execute(dropSql);
             stmt.execute(createSql);
         } catch (SQLException e) {
@@ -96,26 +94,6 @@ class TodoExerTest {
 
         } catch (SQLException e) {
             fail("Failed to get SQLite object: " + e.getClass().getName() + ": " + e.getMessage());
-        }
-    }
-
-    //Test Fetch All Tasks
-    @Test
-    @DisplayName("Test Fetch All task from SQLlite")
-    void testFetchAllTasks() throws Exception {
-        // Arrange
-        try (Connection c = DriverManager.getConnection(TESTDB_URL); var stmt = c.createStatement()) {
-
-            // clean table so test is predictable
-            stmt.execute("DELETE FROM tasks");
-            // insert data
-            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task1', 0, '2025-08-28', 'LOW')");
-            stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('task2', '1', '2026-08-28', 'HIGH')");
-
-            TaskManager tm = new TaskManager();
-
-            // Act
-            //var tasks = tm.fetchAllTask(c)
         }
     }
 
@@ -174,12 +152,6 @@ class TodoExerTest {
 
     }
 
-    @Test
-    @DisplayName("Delete A task")
-    void testDeleteTask() {
-
-    }
-
 //  APPLICATION TESTING ******************************************************************************
 
     @ParameterizedTest
@@ -190,6 +162,7 @@ class TodoExerTest {
         "3, HIGH",
         "0, DEFAULT",
         "f, DEFAULT",
+        ", DEFAULT",
         "LOW, LOW",
         "MID, MID",
         "HIGH, HIGH",})
@@ -240,13 +213,13 @@ class TodoExerTest {
     @Test
     @DisplayName("Parse Exception on wrong datetime format")
     void testTaskInputWrongDateFormat() {
-        TaskManager tm = new TaskManager();
 
         // Simulated user input
         String name = "navn";
         String deadlineStr = "12/12/2025";
         String categoryStr = "1";
 
+        // Should Throw DateTimeParseException if date format is not according to specified dtf
         assertThrows(DateTimeParseException.class, () -> {
             TaskFactory.createTaskFromStrings(name, deadlineStr, categoryStr, tm.dateTimeFormatter);
         });
@@ -264,6 +237,7 @@ class TodoExerTest {
         String categoryStr = "1";
         int isCompletedInt = 2;
 
+        // Should throw IllegalArgumentException if int is not parsable to boolean
         assertThrows(IllegalArgumentException.class, () -> {
             TaskFactory.createTaskFromStrings(name, deadlineStr, categoryStr, isCompletedInt, tm.dateTimeFormatter);
         });
