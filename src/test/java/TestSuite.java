@@ -146,10 +146,22 @@ class TestSuite {
     }
 
     @Test
-    @DisplayName("Delete A task")
-    void testDeleteTask() {
+    @DisplayName("Test Delete Tasks from SQLite")
+    void testDeleteTask() throws Exception {
+        try (Connection c = DriverManager.getConnection(TESTDB_URL);
+        var stmt = c.createStatement()) {
+            
+        // Arrange: clean table + insert one task
+        stmt.execute("DELETE FROM tasks");
+        stmt.execute("INSERT INTO tasks(name, isCompleted, deadline, category) VALUES('taskToDelete', 0, '28-08-2025', 'LOW')");
 
-        
+        // Act: delete the task
+        pm.deleteTask("taskToDelete", c);
+
+        // Assert: fetch all
+        var tasks = pm.fetchAllTasks(c);
+        assertEquals(0, tasks.size(), "Task should be deleted");
+        }
     }
 
 //  APPLICATION TESTING ******************************************************************************
