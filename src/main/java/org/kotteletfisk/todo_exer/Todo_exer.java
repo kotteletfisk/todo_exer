@@ -10,7 +10,6 @@ package org.kotteletfisk.todo_exer;
 public class Todo_exer {
 
     public static void main(String[] args) {
-        TaskManager tm = new TaskManager();
-        tm.runTaskManager();
+        new TaskManager().runTaskManager();
     }
 }
